@@ -1,8 +1,7 @@
-package it.nicolacosta.movie_app.DBConnection;
+package it.nicolacosta.movie_app.persistence;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 public class DatabaseConnectionManager {

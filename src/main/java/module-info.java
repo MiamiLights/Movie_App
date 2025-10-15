@@ -6,4 +6,8 @@ module it.nicolacosta.movie_app {
 
     opens it.nicolacosta.movie_app to javafx.fxml;
     exports it.nicolacosta.movie_app;
+    exports it.nicolacosta.movie_app.model;
+    opens it.nicolacosta.movie_app.model to javafx.fxml;
+    exports it.nicolacosta.movie_app.controller;
+    opens it.nicolacosta.movie_app.controller to javafx.fxml;
 }
