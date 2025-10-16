@@ -4,15 +4,22 @@ import it.nicolacosta.movie_app.model.Media;
 import it.nicolacosta.movie_app.model.Movie;
 import it.nicolacosta.movie_app.model.TvSeries;
 
-public class MediaFactory {
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
-    public static Media createMedia(String type){
+public abstract class MediaFactory {
 
-        if ("MOVIE".equalsIgnoreCase(type))
-            return new Movie();
-        if ("TVSERIES".equalsIgnoreCase(type))
-            return new TvSeries();
+   public abstract Media createFromResultSet(ResultSet rs) throws SQLException;
 
-        throw new IllegalArgumentException("Tipo di media sconosciuto " + type);
-    }
+   protected void populateCommonFields(Media media, ResultSet rs) throws SQLException {
+       media.setId(rs.getInt("id"));
+       media.setTitle(rs.getString("title"));
+       media.setDirector(rs.getString("director"));
+       media.setGenre(rs.getString("genre"));
+       media.setStatus(rs.getString("status"));
+       media.setYear(rs.getInt("year"));
+       media.setRating(rs.getInt("rating"));
+   }
+
+
 }

@@ -1,12 +1,17 @@
 package it.nicolacosta.movie_app.persistence;
 
+import it.nicolacosta.movie_app.factory.MediaFactory;
+import it.nicolacosta.movie_app.factory.MovieFactory;
+import it.nicolacosta.movie_app.factory.TvSeriesFactory;
 import it.nicolacosta.movie_app.model.Media;
 import it.nicolacosta.movie_app.model.Movie;
 import it.nicolacosta.movie_app.model.TvSeries;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class MovieDAO {
@@ -18,7 +23,7 @@ public class MovieDAO {
         DatabaseConnectionManager connectionManager = new DatabaseConnectionManager();
     }
 
-    private void addMovie(Media media) throws SQLException{
+    private void addMedia(Media media) throws SQLException{
         if (media instanceof Movie) {
             Movie movie = (Movie) media;
             String query = "INSERT INTO movie_table (title, director, year, genre, status, rating) VALUES (?, ?, ?, ?, ?, ?)";
@@ -54,7 +59,7 @@ public class MovieDAO {
         statement.executeUpdate();
     }
 
-    private void editMovie(Media media) throws SQLException{
+    private void editMedia(Media media) throws SQLException{
         if (media instanceof  Movie) {
             Movie movie = (Movie) media;
             String query = "UPDATE movie_db SET"
@@ -101,7 +106,24 @@ public class MovieDAO {
         }
     }
 
-    private List<Media> getMovies(){
+    private List<Media> getAllMedia()throws SQLException{
+        List<Media> mediaList = new ArrayList<>();
+        String query = "SELECT * FROM media_table";
+        PreparedStatement statement = connection.prepareStatement(query);
+        ResultSet rs = statement.executeQuery();
 
+        while(rs.next()) {
+            String type = rs.getString("type");
+            MediaFactory factory;
+            if (type.equalsIgnoreCase("movie"))
+                factory = new MovieFactory();
+            else if (type.equalsIgnoreCase("tvseries"))
+                factory = new TvSeriesFactory();
+            else continue;
+
+            Media media = factory.createFromResultSet(rs);
+            mediaList.add(media);
+        }
+        return mediaList;
     }
 }
