@@ -1,21 +1,21 @@
 package it.nicolacosta.movie_app.factory;
 
 import it.nicolacosta.movie_app.model.Media;
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 public abstract class MediaFactory {
 
-  public abstract Media createFromResultSet(ResultSet rs) throws SQLException;
+  public abstract Media createFromData(Map<String, Object> data) throws SQLException;
 
-  protected void populateCommonFields(Media media, ResultSet rs) throws SQLException {
-    media.setId(rs.getInt("id"));
-    media.setTitle(rs.getString("title"));
-    media.setDirector(rs.getString("director"));
-    media.setGenre(rs.getString("genre"));
-    media.setStatus(rs.getString("status"));
-    media.setYear(rs.getInt("year"));
-    media.setRating(rs.getInt("rating"));
+  protected void populateCommonFields(Media media, Map<String, Object> data) throws SQLException {
+    media.setId((Integer) data.get("id"));
+    media.setTitle((String) data.get("title"));
+    media.setDirector((String) data.get("director"));
+    media.setGenre((String) data.get("genre"));
+    media.setStatus((String) data.get("status"));
+    media.setYear((Integer) data.get("year"));
+    media.setRating((Integer) data.get("rating"));
   }
 
 }

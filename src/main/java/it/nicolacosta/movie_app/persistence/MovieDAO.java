@@ -1,18 +1,19 @@
 package it.nicolacosta.movie_app.persistence;
 
-import it.nicolacosta.movie_app.factory.MediaFactory;
-import it.nicolacosta.movie_app.factory.MovieFactory;
-import it.nicolacosta.movie_app.factory.TvSeriesFactory;
-import it.nicolacosta.movie_app.model.Media;
-import it.nicolacosta.movie_app.model.Movie;
-import it.nicolacosta.movie_app.model.TvSeries;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.IdentityHashMap;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import it.nicolacosta.movie_app.factory.MovieFactory;
+import it.nicolacosta.movie_app.factory.TvSeriesFactory;
+import it.nicolacosta.movie_app.model.Media;
+import it.nicolacosta.movie_app.model.Movie;
+import it.nicolacosta.movie_app.model.TvSeries;
 
 public class MovieDAO {
 
@@ -60,16 +61,19 @@ public class MovieDAO {
     }
   }
 
-  public void deleteMovie(int id) throws SQLException {
+  public void deleteMedia(Media media) throws SQLException {
     String query = "DELETE FROM movie_table WHERE id = ?";
     PreparedStatement statement = connection.prepareStatement(query);
-    statement.setInt(1, id);
+    statement.setInt(1, media.getId());
     int rowsAffected = statement.executeUpdate();
 
     if (rowsAffected > 0) {
       System.out.println("Cancellazione completata");
     }
   }
+
+  // TODO sistemare metodo edit e rimuovere try catch che verranno gestiti nel
+  // command
 
   public void editMedia(Media media) {
     if (media instanceof Movie) {
@@ -138,52 +142,75 @@ public class MovieDAO {
     }
   }
 
-  public Media getMedia(int id) {
+  public Media getMedia(Media media) throws SQLException {
     String query = "SELECT * FROM movie_table WHERE id = ?";
-    MediaFactory factory = null;
-    Media media = null;
-    try {
-      PreparedStatement statement = connection.prepareStatement(query);
-      statement.setInt(1, id);
-      ResultSet rs = statement.executeQuery();
-      if (rs.next()) {
-        String type = rs.getString("type");
-        if (type.equalsIgnoreCase("movie"))
-          factory = new MovieFactory();
-        else if (type.equalsIgnoreCase("tvseries"))
-          factory = new TvSeriesFactory();
-        else
-          throw new IllegalArgumentException();
-      }
-      media = factory.createFromResultSet(rs);
-    } catch (SQLException e) {
-      e.printStackTrace();
+    Media mediaReturn = null;
+    Map<String, Object> mediaMap;
+    PreparedStatement statement = connection.prepareStatement(query);
+    statement.setInt(1, media.getId());
+    ResultSet rs = statement.executeQuery();
+    if (rs.next()) {
+      mediaMap = convertRsToMediaMap(rs);
+      if (mediaMap.get("type").equals("tvSeries"))
+        mediaReturn = new TvSeriesFactory().createFromData(mediaMap);
+      else if (mediaMap.get("type").equals("movie"))
+        media = new MovieFactory().createFromData(mediaMap);
+      else
+        throw new IllegalArgumentException();
     }
-    return media;
+    return mediaReturn;
   }
 
   public List<Media> getAllMedia() {
     List<Media> mediaList = new ArrayList<>();
     String query = "SELECT * FROM movie_table";
+    Map<String, Object> mediaMap;
     try {
       PreparedStatement statement = connection.prepareStatement(query);
       ResultSet rs = statement.executeQuery();
       while (rs.next()) {
-        String type = rs.getString("type");
-        MediaFactory factory;
-        if (type.equalsIgnoreCase("movie"))
-          factory = new MovieFactory();
-        else if (type.equalsIgnoreCase("tvseries"))
-          factory = new TvSeriesFactory();
+        mediaMap = convertRsToMediaMap(rs);
+        if (mediaMap.get("type").equals("tvSeries"))
+          mediaList.add(new TvSeriesFactory().createFromData(mediaMap));
+        else if (mediaMap.get("type").equals("movie"))
+          mediaList.add(new MovieFactory().createFromData(mediaMap));
         else
-          continue;
-
-        Media media = factory.createFromResultSet(rs);
-        mediaList.add(media);
+          throw new IllegalArgumentException();
       }
     } catch (SQLException e) {
       e.printStackTrace();
     }
     return mediaList;
+  }
+
+  /*
+   * Usiamo la conversione ad HashMap e non direttamente result set per non
+   * accoppiare troppo le classi Concrete Factory al DAO,
+   * in questo modo le rendiamo riutilizzabili per gestire dati che non sono solo
+   * provenienti da database (Result set) ma anche
+   * dati provenienti da file json o altri formati che possono essere
+   * convenientemente convertiti
+   * in HashMap.
+   */
+
+  private Map<String, Object> convertRsToMediaMap(ResultSet rs) {
+    Map<String, Object> result = new HashMap<>();
+    try {
+      result.put("id", rs.getInt("id"));
+      result.put("title", rs.getString("title"));
+      result.put("director", rs.getString("director"));
+      result.put("genre", rs.getString("genre"));
+      result.put("year", rs.getInt("year"));
+      result.put("rating", rs.getInt("rating"));
+      result.put("type", rs.getString("type"));
+
+      if (result.get("type").equals("tvseries")) {
+        result.put("episodes", rs.getInt("episodes"));
+        result.put("seasons", rs.getInt("seasons"));
+      }
+    } catch (SQLException e) {
+      e.printStackTrace();
+    }
+    return result;
   }
 }

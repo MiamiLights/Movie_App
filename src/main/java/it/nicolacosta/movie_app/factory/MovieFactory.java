@@ -3,14 +3,15 @@ package it.nicolacosta.movie_app.factory;
 import it.nicolacosta.movie_app.model.Media;
 import it.nicolacosta.movie_app.model.Movie;
 
-import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Map;
 
 public class MovieFactory extends MediaFactory {
 
-    public Media createFromResultSet(ResultSet rs) throws SQLException {
-        Movie movie = new Movie();
-        populateCommonFields(movie, rs);
-        return movie;
-    }
+  @Override
+  public Media createFromData(Map<String, Object> data) throws SQLException {
+    Movie movie = new Movie();
+    populateCommonFields(movie, data);
+    return movie;
+  }
 }
