@@ -3,7 +3,7 @@ package it.nicolacosta.movie_app.command;
 import java.sql.SQLException;
 
 import it.nicolacosta.movie_app.model.Media;
-import it.nicolacosta.movie_app.persistence.MovieDAO;
+import it.nicolacosta.movie_app.persistence.MediaDAO;
 
 /**
  * AddCommand
@@ -11,19 +11,15 @@ import it.nicolacosta.movie_app.persistence.MovieDAO;
 public class AddCommand implements Command {
 
   private final Media mediaToAdd;
-  private final MovieDAO dao;
+  private final MediaDAO dao;
 
-  public AddCommand(Media mediaToAdd, MovieDAO dao) {
+  public AddCommand(Media mediaToAdd, MediaDAO dao) {
     this.mediaToAdd = mediaToAdd;
     this.dao = dao;
   }
 
-  public void execute() {
-    try {
+  public void execute() throws SQLException{
       dao.addMedia(mediaToAdd);
-    } catch (SQLException e) {
-      e.printStackTrace();
-    }
   }
 
 }

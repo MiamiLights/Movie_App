@@ -1,5 +1,8 @@
 package it.nicolacosta.movie_app.model;
 
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
 public abstract class Media {
   protected int id;
   protected String title;
@@ -80,5 +83,25 @@ public abstract class Media {
 
   public String getType() {
     return this.type;
+  }
+
+  public abstract String getInsertColumnNames();
+  public abstract String getInsertValuePlaceholders();
+  public abstract void setInsertStatementParams(PreparedStatement statement) throws SQLException;
+  public abstract int setUpdateQueryParams(PreparedStatement statement, int paramIndex) throws SQLException;
+  public abstract String getUpdateQuerySetters();
+
+  @Override
+  public String toString() {
+    return "Media{" +
+            "id=" + id +
+            ", title='" + title + '\'' +
+            ", director='" + director + '\'' +
+            ", genre='" + genre + '\'' +
+            ", status='" + status + '\'' +
+            ", year=" + year +
+            ", rating=" + rating +
+            ", type='" + type + '\'' +
+            '}';
   }
 }

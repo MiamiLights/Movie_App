@@ -17,5 +17,4 @@ public abstract class MediaFactory {
     media.setYear((Integer) data.get("year"));
     media.setRating((Integer) data.get("rating"));
   }
-
 }
