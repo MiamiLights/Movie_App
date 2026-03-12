@@ -4,22 +4,26 @@ import java.sql.SQLException;
 
 import it.nicolacosta.movie_app.model.Media;
 import it.nicolacosta.movie_app.persistence.MediaDAO;
+import it.nicolacosta.movie_app.service.MediaService;
 
-/**
- * AddCommand
- */
+
 public class AddCommand implements Command {
 
   private final Media mediaToAdd;
-  private final MediaDAO dao;
+  private final MediaService service;
 
-  public AddCommand(Media mediaToAdd, MediaDAO dao) {
+  public AddCommand(Media mediaToAdd, MediaService service) {
     this.mediaToAdd = mediaToAdd;
-    this.dao = dao;
+    this.service = service;
   }
 
   public void execute() throws SQLException{
-      dao.addMedia(mediaToAdd);
+      service.addMedia(mediaToAdd);
+  }
+
+  @Override
+  public void undo() throws SQLException {
+    service.deleteMedia(mediaToAdd.getId());
   }
 
 }

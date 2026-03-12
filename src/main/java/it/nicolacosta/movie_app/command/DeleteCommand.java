@@ -4,18 +4,24 @@ import java.sql.SQLException;
 
 import it.nicolacosta.movie_app.model.Media;
 import it.nicolacosta.movie_app.persistence.MediaDAO;
+import it.nicolacosta.movie_app.service.MediaService;
 
 public class DeleteCommand implements Command {
 
-  private final Media media;
-  private final MediaDAO dao;
+  private final Media mediaToDelete;
+  private final MediaService service;
 
-  public DeleteCommand(Media mediaToDelete, MediaDAO dao) {
-    this.media = mediaToDelete;
-    this.dao = dao;
+  public DeleteCommand(Media mediaToDelete, MediaService service) {
+    this.mediaToDelete = mediaToDelete;
+    this.service = service;
   }
 
   public void execute() throws SQLException{
-      dao.deleteMedia(media);
+      service.deleteMedia(mediaToDelete.getId());
+  }
+
+  @Override
+  public void undo() throws SQLException {
+    service.addMedia(mediaToDelete);
   }
 }

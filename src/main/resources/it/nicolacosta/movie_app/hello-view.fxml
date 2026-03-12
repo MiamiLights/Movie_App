@@ -1,12 +1,130 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.layout.AnchorPane?>
-<?import javafx.scene.layout.GridPane?>
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.VBox?>
 
-<AnchorPane prefHeight="400.0" prefWidth="400.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.nicolacosta.movie_app.controller.MainPageController">
-    <ScrollPane fitToWidth="true" focusTraversable="false" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-        <GridPane fx:id="gridPane" styleClass="grid-with-lines">
-        </GridPane>
-    </ScrollPane>
-</AnchorPane>
+<BorderPane prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.nicolacosta.movie_app.controller.MainPageController">
+    
+    <!-- SINISTRA: Filtri -->
+    <left>
+        <VBox spacing="10.0" style="-fx-background-color: #f0f0f0;">
+            <padding><Insets bottom="10.0" left="10.0" right="10.0" top="10.0" /></padding>
+            <children>
+                <Label style="-fx-font-weight: bold;" text="FILTRI" />
+                <Separator />
+                <Label text="Genere" />
+                <ComboBox fx:id="genreFilterComboBox" onAction="#onFilterChanged" prefWidth="150.0" value="Tutti">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Tutti" />
+                            <String fx:value="Azione" />
+                            <String fx:value="Drammatico" />
+                            <String fx:value="Commedia" />
+                            <String fx:value="Sci-Fi" />
+                            <String fx:value="Horror" />
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+                <Label text="Anno" />
+                <TextField fx:id="yearFilterField" onKeyReleased="#onFilterChanged" promptText="Es: 2024" />
+                <Button onAction="#onResetFilters" prefWidth="150.0" text="Reset" />
+            </children>
+        </VBox>
+    </left>
+
+    <!-- CENTRO: Tabella Dati -->
+    <center>
+        <TableView fx:id="mediaTable">
+            <columns>
+                <TableColumn prefWidth="150" text="Titolo">
+                    <cellValueFactory><PropertyValueFactory property="title" /></cellValueFactory>
+                </TableColumn>
+                <TableColumn prefWidth="120" text="Regista">
+                    <cellValueFactory><PropertyValueFactory property="director" /></cellValueFactory>
+                </TableColumn>
+                <TableColumn prefWidth="100" text="Genere">
+                    <cellValueFactory><PropertyValueFactory property="genre" /></cellValueFactory>
+                </TableColumn>
+                <TableColumn prefWidth="60" text="Anno">
+                    <cellValueFactory><PropertyValueFactory property="year" /></cellValueFactory>
+                </TableColumn>
+                <TableColumn prefWidth="50" text="Voto">
+                    <cellValueFactory><PropertyValueFactory property="rating" /></cellValueFactory>
+                </TableColumn>
+                <TableColumn prefWidth="100" text="Stato">
+                    <cellValueFactory><PropertyValueFactory property="status" /></cellValueFactory>
+                </TableColumn>
+                <TableColumn prefWidth="80" text="Tipo">
+                    <cellValueFactory><PropertyValueFactory property="type" /></cellValueFactory>
+                </TableColumn>
+            </columns>
+        </TableView>
+    </center>
+
+    <!-- DESTRA: Azioni e Inserimento -->
+    <right>
+        <VBox prefWidth="200.0" spacing="10.0">
+            <padding><Insets bottom="10.0" left="10.0" right="10.0" top="10.0" /></padding>
+            <children>
+                <Label style="-fx-font-weight: bold;" text="AZIONI" />
+                <Separator />
+                <Button onAction="#onDeleteMedia" prefWidth="180.0" style="-fx-text-fill: red;" text="ELIMINA SELEZIONATO" />
+            <Button fx:id="undoButton" alignment="CENTER" mnemonicParsing="false" onAction="#onUndo" prefHeight="25.0" prefWidth="179.0" text="Undo" />
+                
+                <Separator />
+                <Label style="-fx-font-weight: bold;" text="AGGIUNGI" />
+                <ComboBox fx:id="typeComboBox" onAction="#onTypeSelected" prefWidth="180.0" value="Film">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Film" />
+                            <String fx:value="Serie TV" />
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+                <TextField fx:id="titleField" promptText="Titolo" />
+                <TextField fx:id="directorField" promptText="Regista" />
+                <ComboBox fx:id="genreComboBox" prefWidth="180.0" promptText="Genere" value="Altro">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Azione" />
+                            <String fx:value="Drammatico" />
+                            <String fx:value="Commedia" />
+                            <String fx:value="Sci-Fi" />
+                            <String fx:value="Horror" />
+                            <String fx:value="Altro" />
+                        </FXCollections>
+                    </items>
+                </ComboBox>
+                <TextField fx:id="yearField" promptText="Anno" />
+                <Slider fx:id="ratingSlider" majorTickUnit="1.0" max="10.0" min="1.0" minorTickCount="1" showTickLabels="true" showTickMarks="true" snapToTicks="true" value="5.0" />
+            <ComboBox fx:id="statusComboBox" prefHeight="25.0" prefWidth="181.0" promptText="Status">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Da vedere" />
+                        <String fx:value="Visto" />
+                    </FXCollections>
+                </items>
+            </ComboBox>
+                
+                <VBox fx:id="tvSeriesFields" managed="false" spacing="5.0" visible="false">
+                    <TextField fx:id="episodesField" promptText="Episodi" />
+                    <TextField fx:id="seasonsField" promptText="Stagioni" />
+                </VBox>
+                
+                <Button onAction="#onSaveMedia" prefWidth="180.0" style="-fx-background-color: #4CAF50; -fx-text-fill: white;" text="SALVA" />
+            </children>
+        </VBox>
+    </right>
+</BorderPane>

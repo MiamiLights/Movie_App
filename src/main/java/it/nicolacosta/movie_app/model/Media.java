@@ -85,12 +85,6 @@ public abstract class Media {
     return this.type;
   }
 
-  public abstract String getInsertColumnNames();
-  public abstract String getInsertValuePlaceholders();
-  public abstract void setInsertStatementParams(PreparedStatement statement) throws SQLException;
-  public abstract int setUpdateQueryParams(PreparedStatement statement, int paramIndex) throws SQLException;
-  public abstract String getUpdateQuerySetters();
-
   @Override
   public String toString() {
     return "Media{" +

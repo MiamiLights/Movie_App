@@ -9,7 +9,9 @@ public abstract class MediaFactory {
   public abstract Media createFromData(Map<String, Object> data) throws SQLException;
 
   protected void populateCommonFields(Media media, Map<String, Object> data) throws SQLException {
-    media.setId((Integer) data.get("id"));
+    if (data.containsKey("id") && data.get("id") != null) {
+      media.setId((Integer) data.get("id"));
+    }
     media.setTitle((String) data.get("title"));
     media.setDirector((String) data.get("director"));
     media.setGenre((String) data.get("genre"));

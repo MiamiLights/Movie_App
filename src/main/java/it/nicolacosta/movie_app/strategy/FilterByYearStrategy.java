@@ -5,9 +5,6 @@ import java.util.stream.Collectors;
 
 import it.nicolacosta.movie_app.model.Media;
 
-/**
- * FilterByYearStrategy
- */
 public class FilterByYearStrategy implements FilterStrategy {
 
   private final int year;

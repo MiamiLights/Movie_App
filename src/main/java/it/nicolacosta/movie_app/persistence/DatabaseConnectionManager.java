@@ -7,7 +7,7 @@ import java.sql.SQLException;
 public class DatabaseConnectionManager {
 
   private Connection connection;
-  private final String DB_URL = "jdbc:mysql://localhost:3308/movie_db?allowPublicKeyRetrieval=true&useSSL=false";
+  private final String DB_URL = "jdbc:mysql://localhost:3304/movie_db?allowPublicKeyRetrieval=true&useSSL=false";
   private final String DB_USER = "nicolac";
   private final String DB_PASSWORD = "password";
 

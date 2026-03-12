@@ -1,5 +1,0 @@
-.grid-with-lines > * { /* Applica questo stile a tutti i figli diretti della griglia */
-    -fx-border-color: #c0c0c0;  /* Un grigio visibile */
-    -fx-border-width: 1;
-    -fx-border-style: solid;
-}

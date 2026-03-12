@@ -11,5 +11,5 @@ services:
       MYSQL_USER: nicolac
       MYSQL_PASSWORD: password
     ports:
-      - "3308:3306"
+      - "3304:3306"
 

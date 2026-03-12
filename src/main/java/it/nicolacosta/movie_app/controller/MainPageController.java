@@ -1,107 +1,163 @@
 package it.nicolacosta.movie_app.controller;
 
-import it.nicolacosta.movie_app.command.GetAllCommand;
+import it.nicolacosta.movie_app.command.AddCommand;
+import it.nicolacosta.movie_app.command.Command;
+import it.nicolacosta.movie_app.command.CommandManager;
+import it.nicolacosta.movie_app.command.DeleteCommand;
+import it.nicolacosta.movie_app.events.EventDispatcher;
 import it.nicolacosta.movie_app.events.Observer;
+import it.nicolacosta.movie_app.factory.MovieFactory;
+import it.nicolacosta.movie_app.factory.TvSeriesFactory;
 import it.nicolacosta.movie_app.model.Media;
 import it.nicolacosta.movie_app.persistence.MediaDAO;
+import it.nicolacosta.movie_app.service.MediaService;
+import it.nicolacosta.movie_app.strategy.*;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.Label;
-import javafx.scene.layout.*;
+import javafx.scene.control.*;
+import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.ResourceBundle;
 
 public class MainPageController implements Initializable, Observer {
 
-  @FXML
-  private AnchorPane anchorPane;
+    @FXML private TableView<Media> mediaTable;
+    @FXML private ComboBox<String> genreFilterComboBox, genreComboBox, typeComboBox, statusComboBox;
+    @FXML private TextField yearFilterField, titleField, directorField, yearField, episodesField, seasonsField;
+    @FXML private Slider ratingSlider;
+    @FXML private VBox tvSeriesFields;
 
-  @FXML
-  private GridPane gridPane;
-  private final MediaDAO mediaDAO;
+    private final MediaService mediaService;
+    private FilterStrategy currentStrategy = new NoFilterStrategy();
+    private final CommandManager commandManager = new CommandManager();
 
-  public MainPageController() throws SQLException {
-    this.mediaDAO = new MediaDAO();
-    this.mediaDAO.addObserver(this);
-  }
-
-
-
-  @Override
-  public void initialize(URL url, ResourceBundle resourceBundle) {
-    aggiornaGriglia();
-  }
-
-  private void aggiornaGriglia(){
-    gridPane.getChildren().clear();
-    gridPane.getRowConstraints().clear();
-    gridPane.getColumnConstraints().clear();
-    gridPane.setGridLinesVisible(true);
-    // 2. Ricarica i dati aggiornati dal DAO
-    GetAllCommand getAllCommand = new GetAllCommand(mediaDAO);
-    List<Media> allMedia = new ArrayList<>();
-    try {
-       allMedia = getAllCommand.getAllMedia(); // Assumiamo esista mediaDAO.getAllMedia()
-    }catch (SQLException e){
-      e.printStackTrace();
+    public MainPageController() throws SQLException {
+        MediaDAO mediaDAO = MediaDAO.getInstance();
+        this.mediaService = new MediaService(mediaDAO, EventDispatcher.getInstance());
+        EventDispatcher.getInstance().addObserver(this);
     }
 
-    // Se non ci sono media, potremmo mostrare un messaggio
-    if (allMedia == null || allMedia.isEmpty()) {
-      Label emptyLabel = new Label("Nessun media trovato nel database.");
-      gridPane.add(emptyLabel, 0, 0);
-      return;
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        refreshTable();
     }
 
-    // 3. Imposta le colonne come nel tuo esempio
-    int numColumns = 5; // Puoi cambiare questo valore a tuo piacimento (es. 10)
-    for (int i = 0; i < numColumns; i++) {
-      ColumnConstraints colConst = new ColumnConstraints();
-      colConst.setPercentWidth(100.0 / numColumns); // Colonne di uguale larghezza
-      gridPane.getColumnConstraints().add(colConst);
+    private void refreshTable() {
+        List<Media> allMedia = mediaService.getAllMedia();
+        if (allMedia != null) {
+            mediaTable.setItems(FXCollections.observableArrayList(currentStrategy.filter(allMedia)));
+        }
     }
 
-    // 4. Popola la griglia dinamicamente
-    int col = 0;
-    int row = 0;
+    @FXML
+    public void onFilterChanged() {
+        String genre = genreFilterComboBox.getValue();
+        String yearStr = yearFilterField.getText();
 
-    for (Media media : allMedia) {
-      // Se siamo all'inizio di una nuova riga (colonna 0),
-      // dobbiamo prima creare la RowConstraint per quella riga.
-      if (col == 0) {
-        RowConstraints rowConst = new RowConstraints();
-        rowConst.setMinHeight(120); // La tua altezza minima
-        rowConst.setVgrow(Priority.SOMETIMES); // La tua impostazione di crescita
-        gridPane.getRowConstraints().add(rowConst);
-      }
-
-      // Crea il contenuto da visualizzare (es. un VBox con il titolo)
-      // Questo rende più facile aggiungere un'immagine in futuro
-      VBox mediaBox = new VBox();
-      mediaBox.setStyle("-fx-alignment: center;"); // Centra il contenuto
-      Label titleLabel = new Label(media.getTitle()); // Assumiamo media.getTitolo()
-      mediaBox.getChildren().add(titleLabel);
-
-      // Aggiungi il nodo alla cella corretta
-      gridPane.add(mediaBox, col, row);
-
-      // Aggiorna le coordinate per il prossimo elemento
-      col++;
-      if (col == numColumns) {
-        // Vai a capo: resetta la colonna e incrementa la riga
-        col = 0;
-        row++;
-      }
+        if (genre != null && !"Tutti".equals(genre)) {
+            currentStrategy = new FilterByGenreStrategy(genre);
+        } else if (yearStr != null && !yearStr.isEmpty()) {
+            try {
+                currentStrategy = new FilterByYearStrategy(Integer.parseInt(yearStr));
+            } catch (NumberFormatException e) {
+                currentStrategy = new NoFilterStrategy();
+            }
+        } else {
+            currentStrategy = new NoFilterStrategy();
+        }
+        refreshTable();
     }
-  }
 
-  @Override
-  public void onDatabaseChanged() {
-    Platform.runLater(this::aggiornaGriglia);
-  }
+    @FXML
+    public void onResetFilters() {
+        genreFilterComboBox.setValue("Tutti");
+        yearFilterField.clear();
+        currentStrategy = new NoFilterStrategy();
+        refreshTable();
+    }
+
+    @FXML
+    public void onSaveMedia() {
+        try {
+            String type = typeComboBox.getValue();
+            int y = Integer.parseInt(yearField.getText());
+            int r = (int) ratingSlider.getValue();
+            Media media;
+            Map<String, Object> data = new HashMap<>();
+            data.put("title", titleField.getText());
+            data.put("director", directorField.getText());
+            data.put("genre", genreComboBox.getValue());
+            data.put("status", statusComboBox.getValue());
+            data.put("year", y);
+            data.put("rating", r);
+            data.put("type", typeComboBox.getValue());
+
+            if ("Film".equals(type)) {
+                MovieFactory factory = new MovieFactory();
+                media = factory.createFromData(data);
+            } else {
+                TvSeriesFactory factory = new TvSeriesFactory();
+                data.put("episodes", Integer.parseInt(episodesField.getText()));
+                data.put("seasons", Integer.parseInt(seasonsField.getText()));
+                media = factory.createFromData(data);
+            }
+            Command addCmd = new AddCommand(media, mediaService);
+            commandManager.executeCommand(addCmd);
+            clearFields();
+
+        } catch (Exception e) {
+            showError("Dati non validi: " + e.getMessage());
+        }
+    }
+
+    @FXML
+    public void onDeleteMedia() {
+        Media selected = mediaTable.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            try {
+                Command deleteCmd = new DeleteCommand(selected, mediaService);
+                commandManager.executeCommand(deleteCmd);
+            }catch (SQLException e){
+                showError("Errore durante l'eliminazione: " + e.getMessage());
+            }
+        } else {
+            showError("Seleziona un elemento dalla tabella!");
+        }
+    }
+
+    @FXML
+    public void onTypeSelected() {
+        boolean isTv = "Serie TV".equals(typeComboBox.getValue());
+        tvSeriesFields.setVisible(isTv);
+        tvSeriesFields.setManaged(isTv);
+    }
+
+    private void clearFields() {
+        titleField.clear(); directorField.clear(); yearField.clear(); episodesField.clear(); seasonsField.clear();
+    }
+
+    private void showError(String msg) {
+        Alert a = new Alert(Alert.AlertType.ERROR); a.setContentText(msg); a.show();
+    }
+
+    @Override
+    public void onDatabaseChanged() {
+        Platform.runLater(this::refreshTable);
+    }
+
+    public void onUndo(){
+        try {
+            commandManager.undo();
+        }catch (SQLException e){
+            showError("Errore durante l'annullamento: " + e.getMessage());
+        }
+    }
 }
