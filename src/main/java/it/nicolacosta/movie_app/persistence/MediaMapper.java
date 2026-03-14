@@ -1,61 +1,65 @@
 package it.nicolacosta.movie_app.persistence;
 
-import it.nicolacosta.movie_app.factory.MovieFactory;
-import it.nicolacosta.movie_app.factory.TvSeriesFactory;
+import it.nicolacosta.movie_app.builder.MediaBuilder;
+import it.nicolacosta.movie_app.builder.MovieBuilder;
+import it.nicolacosta.movie_app.builder.TvSeriesBuilder;
 import it.nicolacosta.movie_app.model.Media;
+import it.nicolacosta.movie_app.model.Movie;
 import it.nicolacosta.movie_app.model.TvSeries;
 
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
+import java.sql.Types;
+
 
 public class MediaMapper {
-    private final MovieFactory movieFactory = new MovieFactory();
-    private final TvSeriesFactory tvSeriesFactory = new TvSeriesFactory();
-
-    public Map<String, Object> mediaToMap(Media media) {
-        Map<String, Object> data = new HashMap<>();
-        data.put("title", media.getTitle());
-        data.put("director", media.getDirector());
-        data.put("genre", media.getGenre());
-        data.put("status", media.getStatus());
-        data.put("year", media.getYear());
-        data.put("rating", media.getRating());
-        data.put("type", media.getType());
-
-        if (media instanceof TvSeries) {
-            TvSeries tv = (TvSeries) media;
-            data.put("episodes", tv.getEpCount());
-            data.put("seasons", tv.getSeasonCount());
-        } else {
-            data.put("episodes", null);
-            data.put("seasons", null);
-        }
-        return data;
-    }
+    private MovieBuilder movieBuilder = new MovieBuilder();
+    private TvSeriesBuilder tvSeriesBuilder = new TvSeriesBuilder();
 
     public Media resultSetToMedia(ResultSet rs) throws SQLException {
-        Map<String, Object> mediaMap = new HashMap<>();
-        mediaMap.put("id", rs.getInt("id"));
-        mediaMap.put("title", rs.getString("title"));
-        mediaMap.put("director", rs.getString("director"));
-        mediaMap.put("genre", rs.getString("genre"));
-        mediaMap.put("status", rs.getString("status"));
-        mediaMap.put("year", rs.getInt("year"));
-        mediaMap.put("rating", rs.getInt("rating"));
-
         String type = rs.getString("type");
-        mediaMap.put("type", type);
+        MediaBuilder<?,?> builder;
 
-        if ("tvSeries".equalsIgnoreCase(type)) {
-            mediaMap.put("episodes", rs.getInt("episodes"));
-            mediaMap.put("seasons", rs.getInt("seasons"));
-            return tvSeriesFactory.createFromData(mediaMap);
-        } else if ("movie".equalsIgnoreCase(type)) {
-            return movieFactory.createFromData(mediaMap);
-        } else {
-            throw new IllegalArgumentException("Tipo media sconosciuto: " + type);
+        if (type.equalsIgnoreCase("Serie TV")){
+            builder = new TvSeriesBuilder()
+                    .episodes(rs.getInt("episodes"))
+                    .seasons(rs.getInt("seasons"));
         }
+        else if (type.equalsIgnoreCase("Film")) {
+            builder = new MovieBuilder();
+        }
+        else {
+            throw new IllegalArgumentException("Tipo di media sconosciuto: " + type);
+        }
+
+        return builder
+                .id(rs.getInt("id"))
+                .title(rs.getString("title"))
+                .director(rs.getString("director"))
+                .genre(rs.getString("genre"))
+                .status(rs.getString("status"))
+                .year(rs.getInt("year"))
+                .rating(rs.getInt("rating"))
+                .build();
+        
+    }
+
+    public void mapToStatement(Media media, PreparedStatement stmt) throws SQLException {
+        stmt.setString(1, media.getTitle());
+        stmt.setString(2, media.getDirector());
+        stmt.setString(3, media.getGenre());
+        stmt.setString(4, media.getStatus());
+        if (media instanceof Movie) {
+            stmt.setObject(5, Types.NULL);
+            stmt.setObject(6, Types.NULL);
+        }
+        if (media instanceof TvSeries){
+            stmt.setInt(5, ((TvSeries) media).getEpCount());
+            stmt.setInt(6, ((TvSeries) media).getSeasonCount());
+        }
+        stmt.setInt(7, media.getYear());
+        stmt.setInt(8, media.getRating());
+        stmt.setString(9, media.getType());
     }
 }

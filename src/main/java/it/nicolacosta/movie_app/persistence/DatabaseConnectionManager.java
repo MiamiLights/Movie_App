@@ -1,25 +1,32 @@
 package it.nicolacosta.movie_app.persistence;
 
+
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.Properties;
 
 public class DatabaseConnectionManager {
 
-  private Connection connection;
-  private final String DB_URL = "jdbc:mysql://localhost:3304/movie_db?allowPublicKeyRetrieval=true&useSSL=false";
-  private final String DB_USER = "nicolac";
-  private final String DB_PASSWORD = "password";
+  private final Properties properties = new Properties();
 
   public DatabaseConnectionManager() throws SQLException {
-    try {
-      connection = DriverManager.getConnection(DB_URL, DB_USER, DB_PASSWORD);
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
+    try (InputStream input = getClass().getClassLoader().getResourceAsStream("db.properties")){
+      if (input == null)
+        throw new RuntimeException("Impossibile trovare db.properties");
+      properties.load(input);
+    }catch (IOException e){
+      throw new RuntimeException("Errore durante il caricamento della configurazione database", e);
     }
   }
 
-  public Connection getConnection() {
-    return connection;
+  public Connection getConnection() throws SQLException {
+    return DriverManager.getConnection(
+            properties.getProperty("db.url"),
+            properties.getProperty("db.user"),
+            properties.getProperty("db.password")
+    );
   }
 }

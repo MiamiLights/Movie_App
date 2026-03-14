@@ -39,7 +39,9 @@
                 </ComboBox>
                 <Label text="Anno" />
                 <TextField fx:id="yearFilterField" onKeyReleased="#onFilterChanged" promptText="Es: 2024" />
-                <Button onAction="#onResetFilters" prefWidth="150.0" text="Reset" />
+            <Label text="Titolo" />
+            <TextField fx:id="titleFilterField" onAction="#onFilterChanged" onKeyReleased="#onFilterChanged" />
+                <Button prefWidth="150.0" text="Reset" />
             </children>
         </VBox>
     </left>
@@ -82,6 +84,7 @@
                 <Separator />
                 <Button onAction="#onDeleteMedia" prefWidth="180.0" style="-fx-text-fill: red;" text="ELIMINA SELEZIONATO" />
             <Button fx:id="undoButton" alignment="CENTER" mnemonicParsing="false" onAction="#onUndo" prefHeight="25.0" prefWidth="179.0" text="Undo" />
+            <Button fx:id="editButton" mnemonicParsing="false" onAction="#onEditMedia" prefHeight="25.0" prefWidth="180.0" text="Modifica" />
                 
                 <Separator />
                 <Label style="-fx-font-weight: bold;" text="AGGIUNGI" />

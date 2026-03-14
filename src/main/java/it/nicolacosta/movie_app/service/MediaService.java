@@ -5,6 +5,7 @@ import it.nicolacosta.movie_app.events.Observer;
 import it.nicolacosta.movie_app.events.Subject;
 import it.nicolacosta.movie_app.model.Media;
 import it.nicolacosta.movie_app.persistence.MediaDAO;
+import it.nicolacosta.movie_app.strategy.*;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -50,7 +51,7 @@ public class MediaService {
         try {
             return mediaDAO.getMedia(id);
         } catch (SQLException e) {
-            System.err.println("Errore durante l'ottenimento" + e.getMessage());
+            System.err.println("Errore durante l'ottenimento " + e.getMessage());
         }
         return null;
     }
@@ -59,9 +60,26 @@ public class MediaService {
         try {
             return mediaDAO.getAllMedia();
         } catch (SQLException e) {
-            System.err.println("Errore durante l'ottenimento" + e.getMessage());
+            System.err.println("Errore durante l'ottenimento " + e.getMessage());
         }
         return null;
+    }
+
+    public List<Media> filterData(String genre, String year, String title) {
+        List<Media> allMedia = getAllMedia();
+
+        if (genre != null && !"Tutti".equalsIgnoreCase(genre))
+            allMedia = new FilterByGenreStrategy(genre).filter(allMedia);
+
+        if (year != null && !year.isEmpty()) {
+            try {
+                allMedia = new FilterByYearStrategy(Integer.parseInt(year)).filter(allMedia);
+            } catch (NumberFormatException ignored) {}
+        }
+        if (title != null && !title.isEmpty()){
+            allMedia = new FilterByNameStrategy(title).filter(allMedia);
+        }
+        return allMedia;
     }
 
 }
