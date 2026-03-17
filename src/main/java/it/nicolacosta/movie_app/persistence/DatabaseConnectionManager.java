@@ -12,7 +12,7 @@ public class DatabaseConnectionManager {
 
   private final Properties properties = new Properties();
 
-  public DatabaseConnectionManager() throws SQLException {
+  public DatabaseConnectionManager() {
     try (InputStream input = getClass().getClassLoader().getResourceAsStream("db.properties")){
       if (input == null)
         throw new RuntimeException("Impossibile trovare db.properties");

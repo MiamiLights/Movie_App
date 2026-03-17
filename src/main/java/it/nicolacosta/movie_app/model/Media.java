@@ -1,8 +1,5 @@
 package it.nicolacosta.movie_app.model;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
-
 public abstract class Media {
   protected int id;
   protected String title;
@@ -37,48 +34,24 @@ public abstract class Media {
     return title;
   }
 
-  public void setTitle(String title) {
-    this.title = title;
-  }
-
   public String getDirector() {
     return director;
-  }
-
-  public void setDirector(String director) {
-    this.director = director;
   }
 
   public String getGenre() {
     return genre;
   }
 
-  public void setGenre(String genre) {
-    this.genre = genre;
-  }
-
   public String getStatus() {
     return status;
-  }
-
-  public void setStatus(String status) {
-    this.status = status;
   }
 
   public int getYear() {
     return year;
   }
 
-  public void setYear(int year) {
-    this.year = year;
-  }
-
   public int getRating() {
     return rating;
-  }
-
-  public void setRating(int rating) {
-    this.rating = rating;
   }
 
   public String getType() {

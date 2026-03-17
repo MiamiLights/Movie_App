@@ -41,7 +41,7 @@
                 <TextField fx:id="yearFilterField" onKeyReleased="#onFilterChanged" promptText="Es: 2024" />
             <Label text="Titolo" />
             <TextField fx:id="titleFilterField" onAction="#onFilterChanged" onKeyReleased="#onFilterChanged" />
-                <Button prefWidth="150.0" text="Reset" />
+                <Button prefWidth="150.0" text="Reset" onAction="#onResetFilters" />
             </children>
         </VBox>
     </left>
@@ -98,7 +98,7 @@
                 </ComboBox>
                 <TextField fx:id="titleField" promptText="Titolo" />
                 <TextField fx:id="directorField" promptText="Regista" />
-                <ComboBox fx:id="genreComboBox" prefWidth="180.0" promptText="Genere" value="Altro">
+                <ComboBox fx:id="genreComboBox" prefWidth="180.0" promptText="Genere">
                     <items>
                         <FXCollections fx:factory="observableArrayList">
                             <String fx:value="Azione" />

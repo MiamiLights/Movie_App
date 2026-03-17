@@ -38,7 +38,6 @@ public class HelloApplication extends Application {
     stage.setTitle("Movie App");
     stage.setScene(scene);
 
-    //TODO controllare meglio questa parte
     stage.setOnCloseRequest(t -> {
       EventDispatcher.getInstance().removeObserver(controller);
       Platform.exit();

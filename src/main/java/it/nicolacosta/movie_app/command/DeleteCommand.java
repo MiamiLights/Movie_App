@@ -1,9 +1,6 @@
 package it.nicolacosta.movie_app.command;
 
-import java.sql.SQLException;
-
 import it.nicolacosta.movie_app.model.Media;
-import it.nicolacosta.movie_app.persistence.MediaDAO;
 import it.nicolacosta.movie_app.service.MediaService;
 
 public class DeleteCommand implements Command {
@@ -16,12 +13,12 @@ public class DeleteCommand implements Command {
     this.service = service;
   }
 
-  public void execute() throws SQLException{
+  public void execute() {
       service.deleteMedia(mediaToDelete.getId());
   }
 
   @Override
-  public void undo() throws SQLException {
+  public void undo(){
     service.addMedia(mediaToDelete);
   }
 }

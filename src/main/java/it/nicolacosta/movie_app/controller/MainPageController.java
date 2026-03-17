@@ -52,18 +52,36 @@ public class MainPageController implements Initializable, Observer {
         }
     }
 
+    // Quando i campi dei filtri vengono modificati viene triggerato questo metodo
     @FXML
     public void onFilterChanged() {
+
+        CompositeFilterStrategy composite = new CompositeFilterStrategy();
+
         String genre = genreFilterComboBox.getValue();
         String yearStr = yearFilterField.getText();
         String title = titleFilterField.getText();
-        mediaTable.setItems(FXCollections.observableArrayList(mediaService.filterData(genre, yearStr, title)));
+
+        if (genre != null && !genre.isBlank() && !"Tutti".equalsIgnoreCase(genre))
+            composite.addStrategy(new FilterByGenreStrategy(genre));
+
+        if (yearStr != null && !yearStr.isBlank()) {
+            try {
+                composite.addStrategy(new FilterByYearStrategy(Integer.parseInt(yearStr)));
+            } catch (NumberFormatException ignored) {}
+        }
+        if (title != null && !title.isBlank())
+            composite.addStrategy(new FilterByNameStrategy(title));
+        this.currentStrategy = composite;
+        List<Media> filtered = mediaService.filterData(composite);
+        mediaTable.setItems(FXCollections.observableArrayList(filtered));
     }
 
     @FXML
     public void onResetFilters() {
         genreFilterComboBox.setValue("Tutti");
         yearFilterField.clear();
+        titleFilterField.clear();
         currentStrategy = new NoFilterStrategy();
         refreshTable();
     }
@@ -85,7 +103,7 @@ public class MainPageController implements Initializable, Observer {
             }
 
         }catch (NumberFormatException e){
-            showError("Dati numerici non validi! Controlla Anno, Episodi e Stagioni.");
+            showError("Dati numerici non validi. Controllare Anno, Episodi e Stagioni.");
         }
     }
 
@@ -100,7 +118,7 @@ public class MainPageController implements Initializable, Observer {
                 showError("Errore durante l'eliminazione: " + e.getMessage());
             }
         } else {
-            showError("Seleziona un elemento dalla tabella!");
+            showError("Seleziona un elemento dalla tabella.");
         }
     }
 
@@ -116,7 +134,7 @@ public class MainPageController implements Initializable, Observer {
         if (selectedMedia != null){
             fillForm();
         } else {
-            showError("Seleziona un elemento dalla tabella!");
+            showError("Seleziona un elemento dalla tabella.");
         }
     }
 

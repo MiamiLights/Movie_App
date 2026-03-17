@@ -1,8 +1,6 @@
 package it.nicolacosta.movie_app.service;
 
 import it.nicolacosta.movie_app.events.EventDispatcher;
-import it.nicolacosta.movie_app.events.Observer;
-import it.nicolacosta.movie_app.events.Subject;
 import it.nicolacosta.movie_app.model.Media;
 import it.nicolacosta.movie_app.persistence.MediaDAO;
 import it.nicolacosta.movie_app.strategy.*;
@@ -65,21 +63,11 @@ public class MediaService {
         return null;
     }
 
-    public List<Media> filterData(String genre, String year, String title) {
+    public List<Media> filterData(FilterStrategy strategy) {
         List<Media> allMedia = getAllMedia();
+        if (allMedia == null) return new ArrayList<>();
 
-        if (genre != null && !"Tutti".equalsIgnoreCase(genre))
-            allMedia = new FilterByGenreStrategy(genre).filter(allMedia);
-
-        if (year != null && !year.isEmpty()) {
-            try {
-                allMedia = new FilterByYearStrategy(Integer.parseInt(year)).filter(allMedia);
-            } catch (NumberFormatException ignored) {}
-        }
-        if (title != null && !title.isEmpty()){
-            allMedia = new FilterByNameStrategy(title).filter(allMedia);
-        }
-        return allMedia;
+        return strategy.filter(allMedia);
     }
 
 }

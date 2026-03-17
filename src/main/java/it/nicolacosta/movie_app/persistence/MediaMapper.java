@@ -14,8 +14,6 @@ import java.sql.Types;
 
 
 public class MediaMapper {
-    private MovieBuilder movieBuilder = new MovieBuilder();
-    private TvSeriesBuilder tvSeriesBuilder = new TvSeriesBuilder();
 
     public Media resultSetToMedia(ResultSet rs) throws SQLException {
         String type = rs.getString("type");
@@ -45,7 +43,7 @@ public class MediaMapper {
         
     }
 
-    public void mapToStatement(Media media, PreparedStatement stmt) throws SQLException {
+    public void completeStatement(Media media, PreparedStatement stmt) throws SQLException {
         stmt.setString(1, media.getTitle());
         stmt.setString(2, media.getDirector());
         stmt.setString(3, media.getGenre());

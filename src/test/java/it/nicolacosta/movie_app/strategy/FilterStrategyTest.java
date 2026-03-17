@@ -13,14 +13,14 @@ class FilterStrategyTest {
     @Test
     void testFilterByGenre(){
         List<Media> data = List.of(
-                new MovieBuilder().title("Halloween").genre("Horror").build(),
-                new MovieBuilder().title("The Conjuring").genre("Horror").build(),
-                new MovieBuilder().title("The Hangover").genre("Comico").build(),
-                new MovieBuilder().title("The Godfather").genre("Drammatico").build(),
-                new MovieBuilder().title("Pulp Fiction").genre("Drammatico").build(),
-                new MovieBuilder().title("The Dark Knight").genre("Azione").build(),
-                new MovieBuilder().title("Inception").genre("Azione").build(),
-                new MovieBuilder().title("The Shawshank Redemption").genre("Drammatico").build()
+                new MovieBuilder().title("Film 1").genre("Horror").build(),
+                new MovieBuilder().title("Film 2").genre("Horror").build(),
+                new MovieBuilder().title("FIlm 3").genre("Comico").build(),
+                new MovieBuilder().title("Film 4").genre("Drammatico").build(),
+                new MovieBuilder().title("Film 5").genre("Drammatico").build(),
+                new MovieBuilder().title("Film 6").genre("Azione").build(),
+                new MovieBuilder().title("Film 7").genre("Azione").build(),
+                new MovieBuilder().title("Film 8").genre("Drammatico").build()
         );
 
         FilterByGenreStrategy strategy = new FilterByGenreStrategy("Horror");
@@ -29,7 +29,7 @@ class FilterStrategyTest {
         List<Media> result2 = strategy2.filter(data);
 
         assertEquals(2, result.size());
-        assertEquals("Halloween", result.get(0).getTitle());
+        assertEquals("Film 1", result.get(0).getTitle());
         assertEquals(3, result2.size());
 
     }
@@ -60,17 +60,17 @@ class FilterStrategyTest {
     @Test
     void filterByName(){
         List<Media> data = List.of(
-                new MovieBuilder().title("The Lord of the Rings").build(),
-                new MovieBuilder().title("The Hobbit").build(),
-                new MovieBuilder().title("The Matrix").build(),
-                new MovieBuilder().title("The Godfather").build()
+                new MovieBuilder().title("Film 1").build(),
+                new MovieBuilder().title("Film 2").build(),
+                new MovieBuilder().title("Film 3").build(),
+                new MovieBuilder().title("Film 4").build()
         );
 
-        FilterByNameStrategy strategy = new FilterByNameStrategy("the");
+        FilterByNameStrategy strategy = new FilterByNameStrategy("f");
         List<Media> result = strategy.filter(data);
-        FilterByNameStrategy strategy2 = new FilterByNameStrategy("od");
+        FilterByNameStrategy strategy2 = new FilterByNameStrategy("1");
         List<Media> result2 = strategy2.filter(data);
-        FilterByNameStrategy strategy3 = new FilterByNameStrategy("ciao");
+        FilterByNameStrategy strategy3 = new FilterByNameStrategy("5");
         List<Media> result3 = strategy3.filter(data);
 
         assertEquals(4, result.size());

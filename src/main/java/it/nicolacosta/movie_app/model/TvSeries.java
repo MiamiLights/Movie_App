@@ -1,7 +1,5 @@
 package it.nicolacosta.movie_app.model;
 
-import java.sql.PreparedStatement;
-import java.sql.SQLException;
 
 public class TvSeries extends Media {
   private int epCount;
@@ -27,16 +25,8 @@ public class TvSeries extends Media {
     return epCount;
   }
 
-  public void setEpCount(int epCount) {
-    this.epCount = epCount;
-  }
-
   public int getSeasonCount() {
     return seasonCount;
-  }
-
-  public void setSeasonCount(int seasonCount) {
-    this.seasonCount = seasonCount;
   }
 
   @Override

@@ -17,14 +17,14 @@ public class EditCommand implements Command {
     }
 
     @Override
-    public void execute() throws SQLException{
+    public void execute() {
         this.oldMedia = service.getMedia(mediaToEdit.getId());
         service.editMedia(mediaToEdit);
 
     }
 
     @Override
-    public void undo() throws SQLException {
+    public void undo() {
         service.editMedia(oldMedia);
     }
 }

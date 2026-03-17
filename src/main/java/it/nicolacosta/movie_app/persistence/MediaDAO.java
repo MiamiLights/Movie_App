@@ -23,7 +23,7 @@ public class MediaDAO{
     //Creiamo la connessione nel try così che venga chiusa automaticamente alla fine, viene aperta solo quando serve
     try (Connection connection = connectionManager.getConnection();
          PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) { //Try with resources
-      mapper.mapToStatement(media, statement);
+      mapper.completeStatement(media, statement);
       statement.executeUpdate();
 
       try(ResultSet generatedKeys = statement.getGeneratedKeys()) {
@@ -51,7 +51,7 @@ public class MediaDAO{
             "WHERE id=?";
       try(Connection connection = connectionManager.getConnection();
           PreparedStatement statement = connection.prepareStatement(query)) {
-        mapper.mapToStatement(media, statement);
+        mapper.completeStatement(media, statement);
         statement.setInt(10, media.getId());
 
         int rowsAffected = statement.executeUpdate();
