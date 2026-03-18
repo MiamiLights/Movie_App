@@ -51,8 +51,8 @@ public class MediaDAO{
             "WHERE id=?";
       try(Connection connection = connectionManager.getConnection();
           PreparedStatement statement = connection.prepareStatement(query)) {
-        mapper.completeStatement(media, statement);
-        statement.setInt(10, media.getId());
+        int next = mapper.completeStatement(media, statement);
+        statement.setInt(next, media.getId());
 
         int rowsAffected = statement.executeUpdate();
         if (rowsAffected > 0) {

@@ -43,21 +43,23 @@ public class MediaMapper {
         
     }
 
-    public void completeStatement(Media media, PreparedStatement stmt) throws SQLException {
-        stmt.setString(1, media.getTitle());
-        stmt.setString(2, media.getDirector());
-        stmt.setString(3, media.getGenre());
-        stmt.setString(4, media.getStatus());
+    public int completeStatement(Media media, PreparedStatement stmt) throws SQLException {
+        int i = 1;
+        stmt.setString(i++, media.getTitle());
+        stmt.setString(i++, media.getDirector());
+        stmt.setString(i++, media.getGenre());
+        stmt.setString(i++, media.getStatus());
         if (media instanceof Movie) {
-            stmt.setObject(5, Types.NULL);
-            stmt.setObject(6, Types.NULL);
+            stmt.setObject(i++, Types.NULL);
+            stmt.setObject(i++, Types.NULL);
         }
-        if (media instanceof TvSeries){
-            stmt.setInt(5, ((TvSeries) media).getEpCount());
-            stmt.setInt(6, ((TvSeries) media).getSeasonCount());
+        else if (media instanceof TvSeries){
+            stmt.setInt(i++, ((TvSeries) media).getEpCount());
+            stmt.setInt(i++, ((TvSeries) media).getSeasonCount());
         }
-        stmt.setInt(7, media.getYear());
-        stmt.setInt(8, media.getRating());
-        stmt.setString(9, media.getType());
+        stmt.setInt(i++, media.getYear());
+        stmt.setInt(i++, media.getRating());
+        stmt.setString(i++, media.getType());
+        return i;
     }
 }
