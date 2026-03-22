@@ -1,8 +1,6 @@
 package it.nicolacosta.movie_app.controller;
 
-import it.nicolacosta.movie_app.builder.MediaBuilder;
-import it.nicolacosta.movie_app.builder.MovieBuilder;
-import it.nicolacosta.movie_app.builder.TvSeriesBuilder;
+import it.nicolacosta.movie_app.builder.*;
 import it.nicolacosta.movie_app.command.*;
 import it.nicolacosta.movie_app.events.EventDispatcher;
 import it.nicolacosta.movie_app.events.Observer;
@@ -29,19 +27,22 @@ public class MainPageController implements Initializable, Observer {
     @FXML private TextField yearFilterField, titleField, directorField, yearField, episodesField, seasonsField, titleFilterField;
     @FXML private Slider ratingSlider;
     @FXML private VBox tvSeriesFields;
+    @FXML private TableColumn<Media, Integer> seasonsCol;
+    @FXML private TableColumn<Media, Integer> episodesCol;
 
     private final MediaService mediaService;
     private FilterStrategy currentStrategy = new NoFilterStrategy();
     private final CommandManager commandManager = new CommandManager();
     private Media selectedMedia;
 
-    public MainPageController(MediaService mediaService, EventDispatcher eventDispatcher) throws SQLException {
+    public MainPageController(MediaService mediaService, EventDispatcher eventDispatcher){
         this.mediaService = mediaService;
         eventDispatcher.addObserver(this);
     }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        setupColumns();
         refreshTable();
     }
 
@@ -165,6 +166,7 @@ public class MainPageController implements Initializable, Observer {
     }
 
     private Media extractMediaFromUI() throws NumberFormatException{
+        /*
         String type = typeComboBox.getValue();
         System.out.println(type);
         MediaBuilder<?, ?> builder;
@@ -186,6 +188,13 @@ public class MainPageController implements Initializable, Observer {
                 .year(Integer.parseInt(yearField.getText()))
                 .rating((int) ratingSlider.getValue())
                 .build();
+
+         */
+
+        MediaDTO dto = extractDTOFromUI();
+
+        MediaDirector director = new MediaDirector();
+        return director.buildMedia(dto);
     }
 
     private void safeExecuteCommand(Command command){
@@ -234,6 +243,26 @@ public class MainPageController implements Initializable, Observer {
         }
     }
 
+    private Integer parseSafeInt(String text) {
+        try { return Integer.parseInt(text); }
+        catch (Exception e) { return 0; }
+    }
+
+
+    private MediaDTO extractDTOFromUI() {
+        return new MediaDTO().withDirector(directorField.getText())
+                .withGenre(genreComboBox.getValue())
+                .withRating((int) ratingSlider.getValue())
+                .withStatus(statusComboBox.getValue())
+                .withTitle(titleField.getText())
+                .withYear(parseSafeInt(yearField.getText()))
+                .withSeasons(parseSafeInt(seasonsField.getText()))
+                .withEpisodes(parseSafeInt(episodesField.getText()))
+                .withType(typeComboBox.getValue());
+    }
+
+
+
     private void inputError() {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Errore di compilazione");
@@ -242,5 +271,23 @@ public class MainPageController implements Initializable, Observer {
         alert.showAndWait();
 
         throw new IllegalArgumentException("Campi non compilati ");
+    }
+
+    private void setupColumns(){
+        seasonsCol.setCellValueFactory(data -> {
+            if (data.getValue() instanceof TvSeries) {
+                return new javafx.beans.property.SimpleIntegerProperty(((TvSeries) data.getValue()).getSeasonCount()).asObject();
+            } else {
+                return null;
+            }
+        });
+
+        episodesCol.setCellValueFactory(data -> {
+            if (data.getValue() instanceof TvSeries) {
+                return new javafx.beans.property.SimpleIntegerProperty(((TvSeries) data.getValue()).getEpCount()).asObject();
+            } else {
+                return null;
+            }
+        });
     }
 }

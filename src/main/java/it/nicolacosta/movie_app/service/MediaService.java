@@ -5,7 +5,7 @@ import it.nicolacosta.movie_app.model.Media;
 import it.nicolacosta.movie_app.persistence.MediaDAO;
 import it.nicolacosta.movie_app.strategy.*;
 
-import java.sql.SQLException;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -13,54 +13,34 @@ public class MediaService {
     private final MediaDAO mediaDAO;
     private final EventDispatcher eventDispatcher;
 
-    public MediaService(MediaDAO mediaDAO, EventDispatcher eventDispatcher) throws SQLException{
+    public MediaService(MediaDAO mediaDAO, EventDispatcher eventDispatcher) {
         this.mediaDAO = mediaDAO;
         this.eventDispatcher = eventDispatcher;
     }
 
     public void addMedia(Media media){
-        try{
-            mediaDAO.addMedia(media);
-            eventDispatcher.notifyObservers();
-        }catch (SQLException e){
-            System.err.println("Errore durante il salvataggio" + e.getMessage());
-        }
+        mediaDAO.addMedia(media);
+        eventDispatcher.notifyObservers();
+
     }
 
     public void editMedia(Media media) {
-        try {
-            mediaDAO.editMedia(media);
-            eventDispatcher.notifyObservers();
-        } catch (SQLException e) {
-            System.err.println("Errore durante il salvataggio" + e.getMessage());
-        }
+        mediaDAO.editMedia(media);
+        eventDispatcher.notifyObservers();
     }
 
     public void deleteMedia(int id) {
-        try {
-            mediaDAO.deleteMedia(id);
-            eventDispatcher.notifyObservers();
-        } catch (SQLException e) {
-            System.err.println("Errore durante la rimozione" + e.getMessage());
-        }
+        mediaDAO.deleteMedia(id);
+        eventDispatcher.notifyObservers();
+
     }
 
     public Media getMedia(int id) {
-        try {
-            return mediaDAO.getMedia(id);
-        } catch (SQLException e) {
-            System.err.println("Errore durante l'ottenimento " + e.getMessage());
-        }
-        return null;
+        return mediaDAO.getMedia(id);
     }
 
     public List<Media> getAllMedia() {
-        try {
-            return mediaDAO.getAllMedia();
-        } catch (SQLException e) {
-            System.err.println("Errore durante l'ottenimento " + e.getMessage());
-        }
-        return null;
+        return mediaDAO.getAllMedia();
     }
 
     public List<Media> filterData(FilterStrategy strategy) {

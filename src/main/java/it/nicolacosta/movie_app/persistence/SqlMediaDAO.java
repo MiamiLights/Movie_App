@@ -1,0 +1,106 @@
+package it.nicolacosta.movie_app.persistence;
+
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+
+import it.nicolacosta.movie_app.model.Media;
+
+
+public class SqlMediaDAO implements MediaDAO {
+
+  private final ConnectionManager connectionManager;
+  private final MediaMapper mapper;
+
+  public SqlMediaDAO(ConnectionManager connectionManager){
+    this.connectionManager = connectionManager;
+    this.mapper = new MediaMapper();
+  }
+
+  public void addMedia(Media media){
+    String query = "INSERT INTO movie_table (title, director, genre, status, episodes, seasons, year, rating, type) " +
+            "VALUES (?,?, ?, ?, ?, ?, ?, ?, ?)";
+    //Creiamo la connessione nel try così che venga chiusa automaticamente alla fine, viene aperta solo quando serve
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement statement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) { //Try with resources
+      mapper.completeStatement(media, statement);
+      statement.executeUpdate();
+
+      try(ResultSet generatedKeys = statement.getGeneratedKeys()) {
+        if (generatedKeys.next()){
+          media.setId(generatedKeys.getInt(1));
+        }
+      }
+    } catch (SQLException e) {
+      System.err.println("Errore durante il salvataggio: " + e.getMessage());
+    }
+  }
+
+  public void deleteMedia(int id){
+    String query = "DELETE FROM movie_table WHERE id = ?";
+    try (Connection connection = connectionManager.getConnection();
+         PreparedStatement statement = connection.prepareStatement(query)) { //Try with resources
+      statement.setInt(1, id);
+      int rowsAffected = statement.executeUpdate();
+      if (rowsAffected > 0) {
+        System.out.println("Cancellazione completata");
+      }
+    } catch (SQLException e) {
+      System.err.println("Errore durante la cancellazione: " + e.getMessage());
+    }
+  }
+
+  public void editMedia(Media media) {
+    String query = "UPDATE movie_table SET title=?, director=?, genre=?, status=?, episodes=?, seasons=?, year=?, rating=?, type=? " +
+            "WHERE id=?";
+      try(Connection connection = connectionManager.getConnection();
+          PreparedStatement statement = connection.prepareStatement(query)) {
+        int next = mapper.completeStatement(media, statement);
+        statement.setInt(next, media.getId());
+
+        int rowsAffected = statement.executeUpdate();
+        if (rowsAffected > 0) {
+          System.out.println("Modifica per ID " + media.getId() + " completata con successo.");
+        } else {
+          System.out.println("Nessuna riga modificata per ID " + media.getId());
+        }
+      } catch (SQLException e) {
+        System.err.println("Errore durante la modifica: " + e.getMessage());
+      }
+  }
+
+  public Media getMedia(int id){
+    String query = "SELECT * FROM movie_table WHERE id = ?";
+    try(Connection connection = connectionManager.getConnection();
+        PreparedStatement statement = connection.prepareStatement(query)) {
+      statement.setInt(1, id);
+      try(ResultSet rs = statement.executeQuery()) {
+        if (rs.next()) {
+          return mapper.resultSetToMedia(rs);
+        }
+        return null;
+      }
+    } catch (SQLException e) {
+      System.err.println("Errore durante l'ottenimento: " + e.getMessage());
+      return null;
+    }
+  }
+
+  public List<Media> getAllMedia(){
+    List<Media> mediaList = new ArrayList<>();
+    String query = "SELECT * FROM movie_table";
+    try(Connection connection = connectionManager.getConnection();
+        PreparedStatement statement = connection.prepareStatement(query);
+        ResultSet rs = statement.executeQuery()){
+      while (rs.next()) {
+        mediaList.add(mapper.resultSetToMedia(rs));
+      }
+      return mediaList;
+    }
+    catch (SQLException e){
+      System.err.println("Errore durante l'ottenimento: " + e.getMessage());
+      return mediaList;
+    }
+  }
+
+}

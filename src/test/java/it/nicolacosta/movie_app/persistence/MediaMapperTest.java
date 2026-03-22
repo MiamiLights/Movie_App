@@ -48,7 +48,7 @@ class MediaMapperTest {
         // Creiamo un finto PreparedStatement per verificare se il mapper ci scrive sopra
         PreparedStatement stmt = mock(PreparedStatement.class);
 
-        // Creiamo un oggetto Media REALE con dei dati di prova
+        // Creiamo un oggetto Media reale con dei dati di prova
         Media movie = new MovieBuilder()
                 .title("Matrix")
                 .director("Wachowski").build();

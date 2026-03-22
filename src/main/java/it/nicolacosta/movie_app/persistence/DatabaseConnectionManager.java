@@ -8,7 +8,7 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.util.Properties;
 
-public class DatabaseConnectionManager {
+public class DatabaseConnectionManager implements ConnectionManager {
 
   private final Properties properties = new Properties();
 
@@ -22,11 +22,15 @@ public class DatabaseConnectionManager {
     }
   }
 
-  public Connection getConnection() throws SQLException {
-    return DriverManager.getConnection(
-            properties.getProperty("db.url"),
-            properties.getProperty("db.user"),
-            properties.getProperty("db.password")
-    );
+  public Connection getConnection() {
+    try {
+      return DriverManager.getConnection(
+              properties.getProperty("db.url"),
+              properties.getProperty("db.user"),
+              properties.getProperty("db.password")
+      );
+    } catch (SQLException e) {
+      throw new RuntimeException("Errore durante la connessione al database", e);
+    }
   }
 }

@@ -36,3 +36,4 @@ public class TvSeries extends Media {
             ", seasons=" + seasonCount + "}";
   }
 }
+

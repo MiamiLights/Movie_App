@@ -17,7 +17,6 @@
 
 <BorderPane prefHeight="600.0" prefWidth="1000.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.nicolacosta.movie_app.controller.MainPageController">
     
-    <!-- SINISTRA: Filtri -->
     <left>
         <VBox spacing="10.0" style="-fx-background-color: #f0f0f0;">
             <padding><Insets bottom="10.0" left="10.0" right="10.0" top="10.0" /></padding>
@@ -46,7 +45,6 @@
         </VBox>
     </left>
 
-    <!-- CENTRO: Tabella Dati -->
     <center>
         <TableView fx:id="mediaTable">
             <columns>
@@ -71,11 +69,12 @@
                 <TableColumn prefWidth="80" text="Tipo">
                     <cellValueFactory><PropertyValueFactory property="type" /></cellValueFactory>
                 </TableColumn>
+                <TableColumn fx:id="seasonsCol" prefWidth="60" text="Stagioni" />
+                <TableColumn fx:id="episodesCol" prefWidth="60" text="Episodi" />
             </columns>
         </TableView>
     </center>
 
-    <!-- DESTRA: Azioni e Inserimento -->
     <right>
         <VBox prefWidth="200.0" spacing="10.0">
             <padding><Insets bottom="10.0" left="10.0" right="10.0" top="10.0" /></padding>

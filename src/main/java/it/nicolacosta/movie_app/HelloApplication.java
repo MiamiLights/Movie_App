@@ -4,6 +4,7 @@ import it.nicolacosta.movie_app.controller.MainPageController;
 import it.nicolacosta.movie_app.events.EventDispatcher;
 import it.nicolacosta.movie_app.persistence.DatabaseConnectionManager;
 import it.nicolacosta.movie_app.persistence.MediaDAO;
+import it.nicolacosta.movie_app.persistence.SqlMediaDAO;
 import it.nicolacosta.movie_app.service.MediaService;
 import javafx.application.Application;
 import javafx.application.Platform;
@@ -18,17 +19,13 @@ public class HelloApplication extends Application {
   @Override
   public void start(Stage stage) throws IOException, SQLException {
 
-    MediaDAO dao = new MediaDAO(new DatabaseConnectionManager());
+    SqlMediaDAO dao = new SqlMediaDAO(new DatabaseConnectionManager());
     EventDispatcher dispatcher = new EventDispatcher();
     MediaService service = new MediaService(dao, dispatcher);
     FXMLLoader fxmlLoader = new FXMLLoader(HelloApplication.class.getResource("hello-view.fxml"));
     fxmlLoader.setControllerFactory(type -> {
       if (type == MainPageController.class) {
-          try {
-              return new MainPageController(service, dispatcher);
-          } catch (SQLException e) {
-              throw new RuntimeException(e);
-          }
+          return new MainPageController(service, dispatcher);
       }
       return null;
     });
