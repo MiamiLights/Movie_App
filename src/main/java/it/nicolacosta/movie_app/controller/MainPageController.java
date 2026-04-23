@@ -166,31 +166,6 @@ public class MainPageController implements Initializable, Observer {
     }
 
     private Media extractMediaFromUI() throws NumberFormatException{
-        /*
-        String type = typeComboBox.getValue();
-        System.out.println(type);
-        MediaBuilder<?, ?> builder;
-        if ("Serie TV".equals(type)){
-            builder = new TvSeriesBuilder()
-                    .episodes(Integer.parseInt(episodesField.getText()))
-                    .seasons(Integer.parseInt(seasonsField.getText()));
-        }
-        else if ("Film".equals(type))
-            builder = new MovieBuilder();
-        else{
-            throw new IllegalArgumentException("Tipo non riconosciuto");
-        }
-        return builder
-                .title(titleField.getText())
-                .director(directorField.getText())
-                .genre(genreComboBox.getValue())
-                .status(statusComboBox.getValue())
-                .year(Integer.parseInt(yearField.getText()))
-                .rating((int) ratingSlider.getValue())
-                .build();
-
-         */
-
         MediaDTO dto = extractDTOFromUI();
 
         MediaDirector director = new MediaDirector();
