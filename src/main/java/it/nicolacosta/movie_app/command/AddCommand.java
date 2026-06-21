@@ -16,10 +16,12 @@ public class AddCommand implements Command {
 
   public void execute(){
       service.addMedia(mediaToAdd);
+    System.out.println("AddCommand ESEGUITO: Il DB ha assegnato l'ID -> " + mediaToAdd.getId());
   }
 
   @Override
   public void undo(){
+    System.out.println("AddCommand UNDO: Tento di eliminare l'ID -> " + mediaToAdd.getId());
     service.deleteMedia(mediaToAdd.getId());
   }
 

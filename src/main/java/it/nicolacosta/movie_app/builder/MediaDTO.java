@@ -32,4 +32,15 @@ public class MediaDTO {
     public MediaDTO withType(String type){
         this.type = type; return this;
     }
+
+
+    public String getType() { return type; }
+    public String getTitle() { return title; }
+    public String getDirector() { return director; }
+    public String getGenre() { return genre; }
+    public String getStatus() { return status; }
+    public int getYear() { return year; }
+    public int getRating() { return rating; }
+    public Integer getSeasons() { return seasons; }
+    public Integer getEpisodes() { return episodes; }
 }

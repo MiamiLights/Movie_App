@@ -9,6 +9,7 @@ public class DeleteCommand implements Command {
   private final MediaService service;
 
   public DeleteCommand(Media mediaToDelete, MediaService service) {
+    System.out.println("DeleteCommand UNDO: Sto ripristinando il film cancellato");
     this.mediaToDelete = mediaToDelete;
     this.service = service;
   }

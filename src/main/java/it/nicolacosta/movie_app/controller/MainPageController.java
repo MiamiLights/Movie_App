@@ -90,21 +90,26 @@ public class MainPageController implements Initializable, Observer {
     @FXML
     public void onSaveMedia() {
         try {
-            Media media = extractMediaFromUI();
+            MediaDTO dto = extractDTOFromUI();
+            MediaValidator.validate(dto);
+
+            MediaDirector director = new MediaDirector();
+            Media media = director.buildMedia(dto);
+
             if (selectedMedia != null)
                 media.setId(selectedMedia.getId());
+
+            // creiamo il comando
             Command command = (selectedMedia != null)
                     ? new EditCommand(media, mediaService)
                     : new AddCommand(media, mediaService);
-            try {
-             checkInput();
-             safeExecuteCommand(command);
-            }catch (IllegalArgumentException e){
-                e.getMessage();
-            }
 
-        }catch (NumberFormatException e){
-            showError("Dati numerici non validi. Controllare Anno, Episodi e Stagioni.");
+            safeExecuteCommand(command);
+
+        } catch (IllegalArgumentException e){
+            AlertUtils.showError("Errore durante il salvataggio. Controllare i dati inseriti.");
+        } catch (Exception e){
+            AlertUtils.showError("Errore imprevisto: " + e.getMessage());
         }
     }
 
@@ -116,10 +121,10 @@ public class MainPageController implements Initializable, Observer {
                 Command deleteCmd = new DeleteCommand(selected, mediaService);
                 commandManager.executeCommand(deleteCmd);
             }catch (SQLException e){
-                showError("Errore durante l'eliminazione: " + e.getMessage());
+                AlertUtils.showError("Errore durante l'eliminazione: " + e.getMessage());
             }
         } else {
-            showError("Seleziona un elemento dalla tabella.");
+            AlertUtils.showError("Seleziona un elemento dalla tabella.");
         }
     }
 
@@ -135,7 +140,7 @@ public class MainPageController implements Initializable, Observer {
         if (selectedMedia != null){
             fillForm();
         } else {
-            showError("Seleziona un elemento dalla tabella.");
+            AlertUtils.showError("Seleziona un elemento dalla tabella.");
         }
     }
 
@@ -148,9 +153,6 @@ public class MainPageController implements Initializable, Observer {
         selectedMedia = null;
     }
 
-    private void showError(String msg) {
-        Alert a = new Alert(Alert.AlertType.ERROR); a.setContentText(msg); a.show();
-    }
 
     @Override
     public void onDatabaseChanged() {
@@ -161,15 +163,8 @@ public class MainPageController implements Initializable, Observer {
         try {
             commandManager.undo();
         }catch (SQLException e){
-            showError("Errore durante l'annullamento: " + e.getMessage());
+            AlertUtils.showError("Errore durante l'annullamento: " + e.getMessage());
         }
-    }
-
-    private Media extractMediaFromUI() throws NumberFormatException{
-        MediaDTO dto = extractDTOFromUI();
-
-        MediaDirector director = new MediaDirector();
-        return director.buildMedia(dto);
     }
 
     private void safeExecuteCommand(Command command){
@@ -177,7 +172,7 @@ public class MainPageController implements Initializable, Observer {
             commandManager.executeCommand(command);
             clearFields();
         }catch (SQLException e){
-            showError("Errore database " + e.getMessage());
+            AlertUtils.showError("Errore database " + e.getMessage());
         }
     }
 
@@ -200,24 +195,6 @@ public class MainPageController implements Initializable, Observer {
         }
     }
 
-    private void checkInput() throws IllegalArgumentException {
-        if (titleField.getText().isBlank() ||
-                directorField.getText().isBlank() ||
-                yearField.getText().isBlank() ||
-                statusComboBox.getSelectionModel().isEmpty() ||
-                typeComboBox.getSelectionModel().isEmpty()) {
-
-            inputError();
-            return;
-        }
-
-        if ("Serie TV".equals(typeComboBox.getValue())) {
-            if (seasonsField.getText().isBlank() || episodesField.getText().isBlank()) {
-                inputError();
-            }
-        }
-    }
-
     private Integer parseSafeInt(String text) {
         try { return Integer.parseInt(text); }
         catch (Exception e) { return 0; }
@@ -236,17 +213,6 @@ public class MainPageController implements Initializable, Observer {
                 .withType(typeComboBox.getValue());
     }
 
-
-
-    private void inputError() {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Errore di compilazione");
-        alert.setHeaderText(null);
-        alert.setContentText("Compila correttamente tutti i campi obbligatori.");
-        alert.showAndWait();
-
-        throw new IllegalArgumentException("Campi non compilati ");
-    }
 
     private void setupColumns(){
         seasonsCol.setCellValueFactory(data -> {
